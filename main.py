@@ -5,9 +5,15 @@ import json
 from database import DBWrapper
 
 
-BASE_URL = r'https://swapi.dev/api/'
-CONNECTION_STRING = r'mongodb://localhost:27017/'
-DB_NAME = 'swapi_db'
+def pprint(data):
+    """
+    The function will print the data nicely in json format
+    :param data: data to print (iterable)
+    """
+    for doc in data:
+        del doc['_id'] # Id is not JSON serializable, and not related to the data. Threfore, deleting it
+        print(json.dumps(doc, indent=3))
+        print('*' * 100)
 
 
 def search(swapi, db, args):
@@ -17,13 +23,16 @@ def search(swapi, db, args):
     :param db: The database (MongoDB database)
     :param args: The arguments from the cli (Namespace)
     """
-    search_results = swapi.search(args.resource, args.term)
-    print(json.dumps(search_results, indent=3))
-    db.insert(
-        args.resource,
-        search_results,
-        args.term        
-    )
+    if db.is_cached(args.resource, args.term):
+        pprint(db.find(args.resource, args.term))
+    else:
+        search_results = swapi.search(args.resource, args.term)
+        db.insert(
+            args.resource,
+            search_results,
+            args.term        
+        )
+        pprint(search_results)
     
 
 def get_planets(swapi, db, args):
@@ -33,13 +42,20 @@ def get_planets(swapi, db, args):
     :param db: The database (MongoDB database)
     :param args: The arguments from the cli (Namespace)
     """
-    planets = swapi.get_planets(args.field, args.direction == 'dec')
-    db.insert('planets', planets)
+    if db.is_cached('planets', ''):
+        pprint(db.find('planets', ''))
+    else:
+        planets = swapi.get_planets(args.field, args.direction == 'dec')
+        db.insert('planets', planets, '')
+        pprint(planets)
 
 
 def main():
-    swapi = Swapi(BASE_URL)
-    db = DBWrapper(CONNECTION_STRING, DB_NAME)
+    with open('config.json') as f:
+        config = json.load(f)
+
+    swapi = Swapi(config['BASE_URL'])
+    db = DBWrapper(config['CONNECTION_STRING'], config['DB_NAME'])
 
     parser = argparse.ArgumentParser(prog='swapi')
     sub_parsers = parser.add_subparsers()
