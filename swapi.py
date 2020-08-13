@@ -17,7 +17,7 @@ class Swapi:
             raise Swapi.InvalidResource
         
         results = []
-        url = self._base_url + resource + '/' + f'?search={term}'
+        url = self._resources[resource] + '?search=' + term
         while url:
             res = Swapi.get_json_response(url)
             url = res.get('next')
