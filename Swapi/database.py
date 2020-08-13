@@ -36,7 +36,6 @@ class DBWrapper:
             'search_term': search_term 
         }).count() > 0
 
-
     def find(self, resource, search_term):
         """
         The function will find in the db documents acoording to the query 

@@ -22,12 +22,10 @@ class Swapi:
         """ 
         The function will get sorted results about all the planets in the website
         :param field: The field to sort by (string)
-        :param dec: if true sorting in descending order otherwise ascending order (bool)
         """
-        data = self.search('planets')
-        #return sorted(data, key=lambda x: x[field], reverse=dec)
-        return data
-        
+        return self.search('planets')
+
+
     @staticmethod
     def get_json_response(endpoint):
         """
