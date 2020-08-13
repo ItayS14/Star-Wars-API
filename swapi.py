@@ -10,7 +10,7 @@ class Swapi:
         """
         The function will search data in a given resource 
         :param resource: the resource to search in (str)
-        :param term: the search query - by default retrive all resource data
+        :param term: the search query - by default retrive all resource data (list of dict)
         :raise: InvalidResource - in case the resource was invalid
         """
         if resource not in self._resources:
@@ -24,6 +24,15 @@ class Swapi:
             results += res['results']
         return results         
 
+    def get_planets(self, field, dec):
+        """ 
+        The function will get sorted results about all the planets in the website
+        :param field: The field to sort by (string)
+        :param dec: if true sorting in descending order otherwise ascending order (bool)
+        """
+        data = self.search('planets')
+        return sorted(data, key=lambda x: x[field], reverse=dec)
+        
     @staticmethod
     def get_json_response(endpoint):
         """
