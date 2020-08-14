@@ -6,6 +6,10 @@ def pprint(data):
     The function will print the data nicely in json format
     :param data: data to print (iterable of dicts)
     """
+    if not data:
+        print('No results found')
+        return
+        
     for doc in data:
         doc.pop('_id', None) # Id is not JSON serializable, and not related to the data. Threfore, deleting it if exists.
         print(json.dumps(doc, indent=3))
