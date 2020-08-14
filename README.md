@@ -3,6 +3,18 @@
 Simple command line tool used to get data from the [Star Wars API](https://swapi.dev/ "Main Page")
 Written in Python 3.
 
+### Table of Contents
+
+- [SwAPI - Star Wars API cli tool](#swapi---star-wars-api-cli-tool)
+    + [Installing](#installing)
+    + [Usage](#usage)
+        * [Search](#search)
+        * [Get-planets](#get-planets)
+    + [The Database](#the-database)
+        * [Structure](#structure)
+        * [Caching](#caching)
+    + [Config](#config)
+    
 ### Installing 
 Clone the repository and make sure you installed all packages via Pip.
 ```bash
@@ -64,11 +76,14 @@ Inside the database there are serveral collections which are basicaly the resour
 * starships
 * species
 * vehicles
+
 Each collection holds unqiue data which is relavant to the spesific collection.
 ##### Caching
 There is one special collection in the db called **cache**.
-The collection holds records for the past insertions to the database.
+
+The collection holds records of the past insertions to the database. 
 Each document has 2 fields, search_term and resource.
+
 For example:
 ```json
 {
@@ -81,10 +96,12 @@ Let's say somone already searched people with the search term "r".
 By given that information we can be sure that all the results for "r2" must already be stored in the Database.
 
 So, to check if some data is already cached in the Database all we need to do is to iterate over every contiguous substring in the search term and to check if one of them is already cached.
+
 After validating the data was cached, we can user regular expressions to query our Database simillar to the behavior of the API (Search in the same fields).
 
 ### Config
 All configuration is done in the [config file](config.json).
+
 The options are:
 * BASE_URL - the base url for the API
 * CONNECTION_STRING - connections string to the MongoDB database
