@@ -9,7 +9,7 @@ def pprint(data):
     if not data:
         print('No results found')
         return
-        
+
     for doc in data:
         doc.pop('_id', None) # Id is not JSON serializable, and not related to the data. Threfore, deleting it if exists.
         print(json.dumps(doc, indent=3))

@@ -55,10 +55,10 @@ class DBWrapper:
         :param search_term: the search term to use (str)
         :return: iterator to the data (list)
         """
-        fields = self._search_fields[resource] # Getting the field to search in
+        fields = self._search_fields[resource] # Getting the fields to search in
         collection = self._db[resource]
         final_results = []
-        for field in fields:
+        for field in fields: # Combining results from the diffrent queries
             find_result = collection.find({
                 field: {
                     # case insensetive regex to find the search term (simillar to the website search)

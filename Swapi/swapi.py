@@ -36,5 +36,4 @@ class Swapi:
         :param endpoint: endpoint in the api (string)
         :return: the json response (dict)
         """
-        print(endpoint)
         return requests.get(endpoint).json()
