@@ -5,4 +5,4 @@ import json
 with open('config.json') as f:
     config = json.load(f)
 swapi = Swapi(config['BASE_URL'])
-db = DBWrapper(config['CONNECTION_STRING'], config['DB_NAME'])
+db = DBWrapper(config['CONNECTION_STRING'], config['DB_NAME'], config['RESOURCES'])

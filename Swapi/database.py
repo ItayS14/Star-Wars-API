@@ -1,29 +1,31 @@
 
 from pymongo import MongoClient
+from itertools import combinations
 
+
+# The class is a wrapper to the mongodb client, adding caching functionality
 class DBWrapper:
-    def __init__(self, connection_string, db_name):
+    def __init__(self, connection_string, db_name, search_fields):
         self._client = MongoClient(connection_string)
         self._db = self._client[db_name]
+        self._search_fields = search_fields # The keys to find match in for each resource
 
-    def insert(self, collection_name, data, search_term):
+    def insert(self, resource, data, search_term):
         """
         The function will insert data to a given collection
-        :param collection_name: The resource which is the collection to insert the data to (string)
+        :param resource: The resource which is the collection to insert the data to (string)
         :param data: The data to insert (list of dict)
         :param search_term: The serche term used to get this data (str)
         """
-        collection = self._db[collection_name]
-        res = collection.insert_many(data)
+        collection = self._db[resource]
+        collection.insert_many(data)
 
-        # Adding cache which is linked to the ids of the documents
+        # Caching the insert command
         cache = {
-            'resource': collection_name,
+            'resource': resource,
             'search_term': search_term,
-            'data': res.inserted_ids
         }
-        cache_collection = self._db['cache']
-        cache_collection.insert(cache)
+        self._db['cache'].insert_one(cache)
 
     def is_cached(self, resource, search_term):
         """
@@ -31,10 +33,17 @@ class DBWrapper:
         :param resource: the resource to check i.e: people (str)
         :param search_term: the search term to use (str)
         """
-        return self._db['cache'].find({
-            'resource': resource,
-            'search_term': search_term 
-        }).count() > 0
+        substrings = [''] # Empty string is when somone searched for everything
+        for x,y in combinations(range(len(search_term) + 1), r=2):
+            substrings.append(search_term[x:y])
+
+        # Iterate over the substring because for example if somone searched for "r"
+        # The results for "r2" must already by in the database
+        cache = self._db['cache']
+        for substring in substrings:
+            if cache.count_documents({'resource': resource,'search_term': substring}):
+                return True
+        return False
 
     def find(self, resource, search_term):
         """
@@ -43,8 +52,16 @@ class DBWrapper:
         :param search_term: the search term to use (str)
         :return: iterator to the data (list)
         """
-        ids = self._db['cache'].find_one({
-            'resource': resource,
-            'search_term': search_term
-        })['data']
-        return [self._db[resource].find_one({'_id': _id}) for _id in ids]
+        fields = self._search_fields[resource] # Getting the field to search in
+        collection = self._db[resource]
+        final_results = []
+        for field in fields:
+            find_result = collection.find({
+                field: {
+                    # case insensetive regex to find the search term (simillar to the website search)
+                    '$regex': '.*' + search_term + '.*',
+                    '$options': 'i'
+                }
+            })
+            final_results += list(find_result)
+        return final_results

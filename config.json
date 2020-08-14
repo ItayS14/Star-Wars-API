@@ -2,12 +2,26 @@
     "BASE_URL":"https://swapi.dev/api/",
     "CONNECTION_STRING": "mongodb://localhost:27017/",
     "DB_NAME": "swapi_db",
-    "resources": [
-        "films" ,
-        "people" ,
-        "planets",
-        "species",
-        "starships",
-        "vehicles"
-    ]
+    "RESOURCES": {
+        "films": [
+            "title"
+        ] ,
+        "people": [
+            "name"
+        ] ,
+        "planets": [
+            "name"
+        ],
+        "species": [
+            "name"
+        ],
+        "starships": [
+            "name",
+            "model"
+        ],
+        "vehicles": [
+            "name",
+            "model"
+        ]
+    }
 }

@@ -4,7 +4,7 @@ import json
 def pprint(data):
     """
     The function will print the data nicely in json format
-    :param data: data to print (iterable)
+    :param data: data to print (iterable of dicts)
     """
     for doc in data:
         del doc['_id'] # Id is not JSON serializable, and not related to the data. Threfore, deleting it
@@ -39,10 +39,10 @@ def get_planets(args):
     if db.is_cached('planets', ''):
         planets = db.find('planets', '')
     else:
-        planets = swapi.get_planets(args.field)
+        planets = swapi.get_planets()
         db.insert('planets', planets, '')
     return sorted(
         planets, 
         key=lambda document: document[args.field], 
-        reverse=args.direction=='dec'
+        reverse=args.direction == 'dec'
     )
