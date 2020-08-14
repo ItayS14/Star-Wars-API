@@ -18,8 +18,11 @@ class DBWrapper:
         :param search_term: The serche term used to get this data (str)
         """
         collection = self._db[resource]
-        collection.insert_many(data)
-
+        #To avoid duplicates
+        for doc in data:
+            if collection.count_documents({'url': doc['url']}) == 0: # The url must be unique for each item
+                collection.insert_one(doc)
+    
         # Caching the insert command
         cache = {
             'resource': resource,

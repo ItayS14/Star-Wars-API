@@ -7,7 +7,7 @@ def pprint(data):
     :param data: data to print (iterable of dicts)
     """
     for doc in data:
-        del doc['_id'] # Id is not JSON serializable, and not related to the data. Threfore, deleting it
+        doc.pop('_id', None) # Id is not JSON serializable, and not related to the data. Threfore, deleting it if exists.
         print(json.dumps(doc, indent=3))
         print('*' * 100)
 
@@ -29,7 +29,6 @@ def search(args):
         )
         return search_results
     
-
 def get_planets(args):
     """
     The function will get all the planets and save them in db
@@ -41,8 +40,16 @@ def get_planets(args):
     else:
         planets = swapi.get_planets()
         db.insert('planets', planets, '')
+
+    # Special sorting key function to handle both regular and mixed list
+    def sorting_key(item):
+        try:
+            return (False, int(item[args.field]))
+        except ValueError:
+            return (True, item[args.field])
+
     return sorted(
         planets, 
-        key=lambda document: document[args.field], 
+        key=sorting_key, 
         reverse=args.direction == 'dec'
     )
